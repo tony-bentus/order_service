@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id            Int        @id @default(autoincrement())
+  title         String
+  desc          String?
+  permissions   Permission[]
+  users         User[]
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+}
+
+model Permission {
+  id            Int        @id @default(autoincrement())
+  title         String
+  description   String?
+  active        Boolean
+  profiles      Profile[]
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+}
+
+model User {
+  id            Int        @id @default(autoincrement())
+  username      String     @unique
+  password      String
+  id_profile    Int
+  id_person     Int
+  profile       Profile    @relation(fields: [id_profile], references: [id])
+  person        Person     @relation(fields: [id_person], references: [id])
+  order_services OrderService[]
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+}
+
+model Person {
+  id            Int        @id @default(autoincrement())
+  name          String
+  phone         String
+  cpf           String
+  pix           String?
+  id_adress     Int
+  address       Address      @relation(fields: [id_adress], references: [id])
+  user          User[]
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+  @@unique([name, cpf])
+}
+
+model Address {
+  id            Int        @id @default(autoincrement())
+  street        String
+  number        String
+  district      String
+  state         String
+  city          String
+  zipcode       String
+  person        Person[]
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+}
+
+model OrderService {
+  id            Int        @id @default(autoincrement())
+  id_user       Int
+  services      Service[]
+  discounts     Discount[]
+  amount        Float
+  amount_charged Float
+  client        String
+  date_executed DateTime   @default(now())
+  user          User       @relation(fields: [id_user], references: [id])
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+}
+
+model Service {
+  id            Int        @id @default(autoincrement())
+  id_type_service Int
+  title         String
+  description   String?
+  amount        Float
+  active        Boolean
+  orderService  OrderService[]
+  type_service  TypeService @relation(fields: [id_type_service], references: [id])
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+}
+
+model TypeService {
+  id            Int        @id @default(autoincrement())
+  title         String
+  services      Service[]
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+}
+
+model Discount {
+  id            Int        @id @default(autoincrement())
+  id_type_discount Int
+  title         String
+  description   String?
+  amount        Float
+  active        Boolean
+  orderService  OrderService[]
+  type_discount TypeDiscount @relation(fields: [id_type_discount], references: [id])
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+}
+
+model TypeDiscount {
+  id            Int        @id @default(autoincrement())
+  title         String
+  discounts     Discount[]
+  create_date   DateTime   @default(now())
+  update_date   DateTime   @updatedAt
+}
