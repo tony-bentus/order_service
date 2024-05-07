@@ -49,15 +49,14 @@ model User {
 model Person {
   id            Int        @id @default(autoincrement())
   name          String
-  phone         String
-  cpf           String
+  phone         String @unique
+  cpf           String @unique
   pix           String?
   id_adress     Int
   address       Address      @relation(fields: [id_adress], references: [id])
   user          User[]
   create_date   DateTime   @default(now())
   update_date   DateTime   @updatedAt
-  @@unique([name, cpf])
 }
 
 model Address {
